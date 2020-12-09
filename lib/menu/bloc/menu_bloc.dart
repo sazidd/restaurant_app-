@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meta/meta.dart';
 
 import '../menu.dart';
@@ -14,19 +13,9 @@ part 'menu_event.dart';
 part 'menu_state.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> with ChangeNotifier {
-  Repository repository;
-  MenuBloc({this.repository}) : super(MenuInitial());
+  final Repository repository;
 
-  toastShow() {
-    Fluttertoast.showToast(
-        msg: "There is no more Data Availabel",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0);
-  }
+  MenuBloc({this.repository}) : super(MenuInitial());
 
   @override
   Stream<MenuState> mapEventToState(
@@ -36,25 +25,28 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> with ChangeNotifier {
     if (event is FetchNotes && !_hasReachedMax(state)) {
       if (currentState is MenuInitial) {
         yield MenuLoading();
-        try {
-          final notes = await repository.fetchNotes(event.id);
-          print('notes: { $notes }');
-          yield MenuSuccess(notes: notes, hasReachedMax: false);
-        } catch (_) {
-          toastShow();
-          // yield MenuFailure(error: 'No data available');
+        final notes = await repository.fetchNotes(event.id);
+        if (notes != null) {
+          yield MenuSuccess(
+            notes: notes,
+            hasReachedMax: false,
+          );
+        } else {
+          yield MenuFailure(errorMessage: 'No more data');
         }
-      } else if (currentState is MenuSuccess) {
-        try {
-          final notes = await repository.fetchNotes(event.id + 1);
-          print('notes: { $notes }');
-          yield notes.isEmpty
-              ? MenuSuccess(notes: <Menu>[], hasReachedMax: true)
-              : MenuSuccess(
-                  notes: currentState.notes + notes, hasReachedMax: false);
-        } catch (_) {
-          toastShow();
-          //yield MenuFailure(error: 'No data available');
+      }
+      if (currentState is MenuSuccess) {
+        final notes = await repository.fetchNotes(event.id + 1);
+        if (notes != null) {
+          yield MenuSuccess(
+            notes: currentState.notes + notes,
+            hasReachedMax: false,
+          );
+        } else {
+          yield MenuSuccess(
+            notes: currentState.notes,
+            hasReachedMax: true,
+          );
         }
       }
     }

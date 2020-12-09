@@ -2,14 +2,13 @@ part of 'menu_bloc.dart';
 
 @immutable
 abstract class MenuState extends Equatable {
+  const MenuState();
+
   @override
   List<Object> get props => [];
 }
 
-class MenuInitial extends MenuState {
-  @override
-  List<Object> get props => [];
-}
+class MenuInitial extends MenuState {}
 
 class MenuLoading extends MenuState {
   @override
@@ -21,8 +20,8 @@ class MenuSuccess extends MenuState {
 
   final bool hasReachedMax;
 
-  MenuSuccess({
-    this.notes,
+  const MenuSuccess({
+    this.notes = const <Menu>[],
     this.hasReachedMax = false,
   });
 
@@ -30,4 +29,10 @@ class MenuSuccess extends MenuState {
   List<Object> get props => [notes, hasReachedMax];
 }
 
-// class MenuFailure extends MenuState {}
+class MenuFailure extends MenuState {
+  final String errorMessage;
+  const MenuFailure({this.errorMessage});
+
+  @override
+  List<Object> get props => [errorMessage];
+}

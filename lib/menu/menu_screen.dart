@@ -17,8 +17,6 @@ class _MenuScreen extends State<MenuScreen> {
   MenuBloc _menuBloc;
   // final _scrollThreshold = 200.0;
 
-  MenuSuccess menuSuccess;
-
   // void _onScroll() {
   //   final maxScrollPosts = _scrollController.position.maxScrollExtent;
   //   final currentScrollPosts = _scrollController.position.pixels;
@@ -28,16 +26,19 @@ class _MenuScreen extends State<MenuScreen> {
   //   }
   // }
 
+  // void _onScroll() {
+  //   final maxScroll = _scrollController.position.maxScrollExtent;
+  //   final currentScroll = _scrollController.position.pixels;
+  //   if (maxScroll - currentScroll <= _scrollThreshold) {
+  //     _menuBloc.add(FetchNotes(id: id++));
+  //   }
+  // }
+
   void _onScroll() {
-    // final maxScrollPosts = _scrollController.position.maxScrollExtent;
-    // final currentScrollPosts = _scrollController.position.pixels;
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      //id++;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.position.pixels;
+    if (maxScroll == currentScroll) {
       _menuBloc.add(FetchNotes(id: id++));
-    }
-    if (menuSuccess.hasReachedMax == true) {
-      _menuBloc.toastShow();
     }
   }
 
@@ -56,75 +57,56 @@ class _MenuScreen extends State<MenuScreen> {
     super.dispose();
   }
 
-  // toastShow() {
-  //   Fluttertoast.showToast(
-  //       msg: "There is no more Data Availabel",
-  //       toastLength: Toast.LENGTH_SHORT,
-  //       gravity: ToastGravity.CENTER,
-  //       timeInSecForIosWeb: 1,
-  //       backgroundColor: Colors.red,
-  //       textColor: Colors.white,
-  //       fontSize: 16.0);
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<MenuBloc, MenuState>(
-        listener: (context, state) {
-          if (state is MenuInitial) {
-            _menuBloc.add(FetchNotes(id: id));
-          }
-        },
+        listener: (context, state) {},
         builder: (context, state) {
           if (state is MenuLoading) {
             return Center(
               child: CircularProgressIndicator(),
             );
-          }
-          // if (state is MenuFailure) {
-          //   return Center(
-          //     child:,
-          //   );
-          // }
-          if (state is MenuSuccess) {
-            if (state.notes.isEmpty) {
-              return Center(
-                child: Text("No More data"),
+          } else if (state is MenuFailure) {
+            return Center(
+              child: Text(state.errorMessage),
+            );
+          } else if (state is MenuSuccess) {
+            if (state.notes != null) {
+              return Container(
+                constraints: BoxConstraints.tightFor(
+                    height: MediaQuery.of(context).size.height),
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    controller: _scrollController,
+                    itemCount: state.hasReachedMax
+                        ? state.notes.length
+                        : state.notes.length + 1,
+                    itemBuilder: (context, index) {
+                      print("_notes.length ${state.notes.length}");
+                      print("index $index");
+
+                      return (index >= state.notes.length)
+                          ? CupertinoActivityIndicator()
+                          : _menuItem(
+                              context,
+                              state.notes[index].id,
+                              state.notes[index].imageSource,
+                              state.notes[index].name,
+                              state.notes[index].price,
+                              state.notes[index].quantity);
+                    }),
               );
             }
-            return ListView.builder(
-                controller: _scrollController,
-                itemCount: state.hasReachedMax
-                    ? state.notes.length
-                    : state.notes.length + 1,
-                itemBuilder: (context, index) {
-                  print("_notes.length ${state.notes.length}");
-                  print("index ${index}");
-
-                  return index >= state.notes.length
-                      ? CupertinoActivityIndicator()
-                      : _menuItem(
-                          context,
-                          state.notes[index].id,
-                          state.notes[index].imageSource,
-                          state.notes[index].name,
-                          state.notes[index].price,
-                          state.notes[index].quantity);
-                });
           }
-          return Container(
-            child: Center(
-              child: Text("Something went wrong"),
-            ),
-          );
+          return Container();
         },
       ),
     );
   }
 }
 
-_menuItem(BuildContext context, String id, String img, String name,
+Widget _menuItem(BuildContext context, String id, String img, String name,
     String price, String quantity) {
   return Padding(
     padding: EdgeInsets.fromLTRB(0, 6, 0, 6),

@@ -20,6 +20,7 @@ class Repository {
       // noMoredata = true;
       // noMoredataOnce = true;
       print("index2error");
+      return null;
       // setState(() {
       //   noMoredata = true;
       //   noMoredataOnce = true;
@@ -39,9 +40,9 @@ class Repository {
       for (var noteJson in notesJson) {
         notes.add(Menu.fromJson(noteJson));
       }
+      return notes;
     }
 
     print(id);
-    return notes;
   }
 }

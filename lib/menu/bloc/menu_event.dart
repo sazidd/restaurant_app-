@@ -11,7 +11,7 @@ abstract class MenuEvent extends Equatable {
 class FetchNotes extends MenuEvent {
   final int id;
 
-  FetchNotes({this.id = 1});
+  FetchNotes({this.id});
 
   @override
   List<Object> get props => [id];
