@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutterapptestpush/db/services.dart';
 import 'package:flutterapptestpush/model/item_details.dart';
 import 'package:flutterapptestpush/screens/cart_menu.dart';
-import 'package:flutterapptestpush/screens/notifications.dart';
-import 'package:flutterapptestpush/screens/order_screen.dart';
+import 'package:flutterapptestpush/screens/order_item_screen/order_item_screen.dart';
 import 'package:flutterapptestpush/sqlite/cart.dart';
 import 'package:flutterapptestpush/sqlite/cart_provider.dart';
 import 'package:flutterapptestpush/sqlite/order.dart';
@@ -14,14 +13,11 @@ import 'package:flutterapptestpush/sqlite/order_provider.dart';
 import 'package:flutterapptestpush/util/const.dart';
 
 import 'package:flutterapptestpush/util/usershareperf.dart';
-import 'package:flutterapptestpush/widgets/badge.dart';
 import 'package:flutterapptestpush/widgets/smooth_star_rating.dart';
 import 'package:flutterapptestpush/sqlite/wishlist.dart';
 import 'package:flutterapptestpush/sqlite/wishlist_provider.dart';
 
-
 import 'favorite_menu.dart';
-import 'favorite_screen.dart';
 import 'join.dart';
 
 class DetailsItem extends StatefulWidget {
@@ -50,7 +46,7 @@ class _DetailsItem extends State<DetailsItem> {
   _DetailsItem(this._id, this._img);
 
   var isLoading = false;
-  int orderCount=0;
+  int orderCount = 0;
   String userId;
   int menuTotalPrice22;
 
@@ -191,36 +187,45 @@ class _DetailsItem extends State<DetailsItem> {
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                            Text(
-                              "1 Pieces",
-                              style: TextStyle(
-                                fontSize: 11.0,
-                                fontWeight: FontWeight.w300,
-                              ),
-                            ),
-                            SizedBox(width: 10.0),
-                            Text(
-                              response.data.price,
-                              style: TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w900,
-                                color: Theme.of(context).accentColor,
-                              ),
-                            ),
+                                Text(
+                                  "1 Pieces",
+                                  style: TextStyle(
+                                    fontSize: 11.0,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                                SizedBox(width: 10.0),
+                                Text(
+                                  response.data.price,
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w900,
+                                    color: Theme.of(context).accentColor,
+                                  ),
+                                ),
                               ],
-                              ),
+                            ),
                             SizedBox(width: 10.0),
                             Row(
                               children: <Widget>[
-                                _itemCount!=0? new  IconButton(icon: new Icon(Icons.remove),color: Colors.redAccent,onPressed: ()=>setState(()=>_itemCount--),):new Container(),
+                                _itemCount != 0
+                                    ? new IconButton(
+                                        icon: new Icon(Icons.remove),
+                                        color: Colors.redAccent,
+                                        onPressed: () =>
+                                            setState(() => _itemCount--),
+                                      )
+                                    : new Container(),
                                 new Text(_itemCount.toString()),
-                                new IconButton(icon: new Icon(Icons.add),color: Colors.redAccent,onPressed: ()=>setState(()=>_itemCount++))
+                                new IconButton(
+                                    icon: new Icon(Icons.add),
+                                    color: Colors.redAccent,
+                                    onPressed: () =>
+                                        setState(() => _itemCount++))
                               ],
                             ),
-
                           ],
                         ),
-
                       ),
                       SizedBox(height: 20.0),
                       Text(
@@ -355,50 +360,50 @@ class _DetailsItem extends State<DetailsItem> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             SizedBox(width: 4.0),
-           Expanded(
-             child:RaisedButton(
-              child: Text(
-                "Wish",
-                style: TextStyle(
-                  color: Colors.white,
+            Expanded(
+              child: RaisedButton(
+                child: Text(
+                  "Wish",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
+                color: Theme.of(context).accentColor,
+                onPressed: () {
+                  _addWish();
+                },
               ),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                _addWish();
-              },
             ),
-           ),
             SizedBox(width: 4.0),
-           Expanded(
-           child: RaisedButton(
-              child: Text(
-                "CART",
-                style: TextStyle(
-                  color: Colors.white,
+            Expanded(
+              child: RaisedButton(
+                child: Text(
+                  "CART",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
+                color: Theme.of(context).accentColor,
+                onPressed: () {
+                  _addCart();
+                },
               ),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                _addCart();
-              },
             ),
-           ),
             SizedBox(width: 4.0),
-           Expanded(
-           child: RaisedButton(
-              child: Text(
-                "PURCHASE",
-                style: TextStyle(
-                  color: Colors.white,
+            Expanded(
+              child: RaisedButton(
+                child: Text(
+                  "PURCHASE",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
                 ),
+                color: Theme.of(context).accentColor,
+                onPressed: () {
+                  _addPurchase();
+                },
               ),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                _addPurchase();
-              },
             ),
-           ),
             SizedBox(width: 4.0),
           ],
         ),
@@ -462,127 +467,115 @@ class _DetailsItem extends State<DetailsItem> {
     } else {
       //when user id not is empty
 
-
-
-      dbsqliteOrder.getOrderMenuItemCheck(itemDetails.id.toString()).then((onValue){
+      dbsqliteOrder
+          .getOrderMenuItemCheck(itemDetails.id.toString())
+          .then((onValue) {
         print("onValue .$onValue");
-        if( onValue==null){
+        if (onValue == null) {
+          if (_itemCount == 0) {
+            dbsqliteOrder.insertOrder(Order(
+                userId: userId,
+                menuItemId: itemDetails.id,
+                menuName: itemDetails.name,
+                menuPrice: itemDetails.price,
+                menuDescription: itemDetails.description,
+                menuImageSource: itemDetails.imageSource,
+                menuQuantity: "1"));
+          } else {
+            dbsqliteOrder.insertOrder(Order(
+                userId: userId,
+                menuItemId: itemDetails.id,
+                menuName: itemDetails.name,
+                menuPrice: itemDetails.price,
+                menuDescription: itemDetails.description,
+                menuImageSource: itemDetails.imageSource,
+                menuQuantity: _itemCount.toString()));
+          }
 
-            if(_itemCount==0){
-              dbsqliteOrder.insertOrder(Order(
-                  userId: userId,
-                  menuItemId: itemDetails.id,
-                  menuName: itemDetails.name,
-                  menuPrice: itemDetails.price,
-                  menuDescription: itemDetails.description,
-                  menuImageSource: itemDetails.imageSource,
-                  menuQuantity: "1"
-              ));
-            }else{
-              dbsqliteOrder.insertOrder(Order(
-                  userId: userId,
-                  menuItemId: itemDetails.id,
-                  menuName: itemDetails.name,
-                  menuPrice: itemDetails.price,
-                  menuDescription: itemDetails.description,
-                  menuImageSource: itemDetails.imageSource,
-                  menuQuantity: _itemCount.toString()
-              ));
-            }
+          dbsqliteOrder.getMenuPrice().then((menuTotalPrice) {
+            menuTotalPrice22 = menuTotalPrice;
+            print("menuTotalPrice22 $menuTotalPrice22");
 
-
-            dbsqliteOrder.getMenuPrice().then((menuTotalPrice){
-
-              menuTotalPrice22=menuTotalPrice;
-              print("menuTotalPrice22 $menuTotalPrice22");
-
-             Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (BuildContext context) {
-                    return OrderScreen(menuTotalPrice22);
-                  },
-                ),
-              );
-            });
-        }else {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return OrderItemScreen(menuTotalPrice22);
+                },
+              ),
+            );
+          });
+        } else {
           print("menuTotalyy");
-          dbsqliteOrder.getOrderMenuItemCheckQuantity(itemDetails.id.toString()).then((onValue){
-            Order order=onValue;
+          dbsqliteOrder
+              .getOrderMenuItemCheckQuantity(itemDetails.id.toString())
+              .then((onValue) {
+            Order order = onValue;
             int menuQantity;
-            if(_itemCount==0){
+            if (_itemCount == 0) {
               print("onValue. .${order.menuQantity}");
-               menuQantity= int.parse(order.menuQantity)+1;
-            }else{
+              menuQantity = int.parse(order.menuQantity) + 1;
+            } else {
               print("onValue. .${order.menuQantity}");
-               menuQantity= int.parse(order.menuQantity)+_itemCount;
+              menuQantity = int.parse(order.menuQantity) + _itemCount;
             }
 
-            dbsqliteOrder.getupdateMenuQuantity(itemDetails.id.toString(),menuQantity.toString()).then((onValue){
+            dbsqliteOrder
+                .getupdateMenuQuantity(
+                    itemDetails.id.toString(), menuQantity.toString())
+                .then((onValue) {
               print("onValue. .${onValue}");
 
-              if(onValue==1){
-                dbsqliteOrder.getMenuPrice().then((menuTotalPrice){
-
-                  menuTotalPrice22=menuTotalPrice;
+              if (onValue == 1) {
+                dbsqliteOrder.getMenuPrice().then((menuTotalPrice) {
+                  menuTotalPrice22 = menuTotalPrice;
                   print("menuTotalPrice22 $menuTotalPrice22");
 
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return OrderScreen(menuTotalPrice22);
+                        return OrderItemScreen(menuTotalPrice22);
                       },
                     ),
                   );
-
                 });
-
               }
             });
           });
         }
-
       });
-
-
-
-      }
     }
   }
+}
 
-  Future<void> _ackAlert(BuildContext context, String msg) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('ALERT'),
-          content: Text('After login you can done ${msg}'),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('Ok'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text('Login'),
-              onPressed: () {
-                Navigator.of(context).pop();
-
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) {
-                      return JoinApp();
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-
-
-
+Future<void> _ackAlert(BuildContext context, String msg) {
+  return showDialog<void>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('ALERT'),
+        content: Text('After login you can done ${msg}'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Ok'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          FlatButton(
+            child: Text('Login'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return JoinApp();
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
+}

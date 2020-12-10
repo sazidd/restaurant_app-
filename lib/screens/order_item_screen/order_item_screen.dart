@@ -1,57 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapptestpush/db/payment-service.dart';
+import 'package:flutterapptestpush/screens/order_item_screen/bloc/order_item_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:flutterapptestpush/db/services.dart';
 
 import 'package:flutterapptestpush/sqlite/order.dart';
 import 'package:flutterapptestpush/sqlite/order_provider.dart';
-import 'package:flutterapptestpush/util/foods.dart';
 import 'package:flutterapptestpush/util/usershareperf.dart';
-import 'package:flutterapptestpush/widgets/cart_item.dart';
 
-import 'package:flutterapptestpush/sqlite/cart.dart';
-import 'package:flutterapptestpush/sqlite/cart_provider.dart';
-import 'package:flutterapptestpush/widgets/order_item.dart';
 import 'package:flutterapptestpush/widgets/order_user_item.dart';
 
-import 'order_payment_screen.dart';
+import '../order_payment_screen.dart';
 
-class OrderScreen extends StatefulWidget {
-  int _menuPriceTotall;
-  OrderScreen(@required this._menuPriceTotall);
+class OrderItemScreen extends StatefulWidget {
+  final int _menuPriceTotal;
+
+  const OrderItemScreen(this._menuPriceTotal);
 
   @override
   State<StatefulWidget> createState() {
-    return _OrderScreennState(this._menuPriceTotall);
+    return _OrderScreennState(this._menuPriceTotal);
   }
-
-
 }
 
-class _OrderScreennState extends State<OrderScreen>
-    with AutomaticKeepAliveClientMixin<OrderScreen> {
-
+class _OrderScreennState extends State<OrderItemScreen>
+    with AutomaticKeepAliveClientMixin<OrderItemScreen> {
+  OrderItemBloc _orderItemBloc;
   String taka;
 
   onItemPress(BuildContext context) async {
     payViaNewCard(context);
   }
+
   payViaNewCard(BuildContext context) async {
-
-
-    var response = await StripeService.payWithNewCard(
-        amount: taka,
-        currency: 'USD'
-    );
+    var response =
+        await StripeService.payWithNewCard(amount: taka, currency: 'USD');
     print(response.message);
-    if(response.message=="Transaction successful"){
+    if (response.message == "Transaction successful") {
       orderItem();
-    }else{
+    } else {
       _ackAlertError(context);
     }
-
   }
-
 
   ////
   int _menuPriceTotall;
@@ -63,11 +52,12 @@ class _OrderScreennState extends State<OrderScreen>
   List orderList3 = [];
   String userId;
 
-  _OrderScreennState(@required this._menuPriceTotall);
-  bool oneLoadSum=true;
+  _OrderScreennState(this._menuPriceTotall);
+  bool oneLoadSum = true;
 
   @override
   void initState() {
+    _orderItemBloc = context.read<OrderItemBloc>();
     super.initState();
     StripeService.init();
     UserShareFrence.getStringUserID().then((value) {
@@ -76,30 +66,21 @@ class _OrderScreennState extends State<OrderScreen>
         userId = value;
       });
     });
-
-
-
-
   }
 
-  orderItem(){
-    dbOrderManager.getmenuItemId().then((orderValue){
-      List orderListtmp=orderValue;
+  orderItem() {
+    dbOrderManager.getmenuItemId().then((orderValue) {
+      List orderListtmp = orderValue;
       print("orderList2 ${orderListtmp} ${orderValue}");
 
-
       for (var element in orderListtmp) {
-
         print(element['menuItemId']);
         print(element['menuQuantity']);
         orderList3.add(element['menuItemId']);
         orderList3..add(element['menuQuantity']);
-
       }
       print("orderList3 ${orderList3} ");
-
     });
-
   }
 
   Future<void> _ackAlert(BuildContext context) {
@@ -142,13 +123,11 @@ class _OrderScreennState extends State<OrderScreen>
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<MyOrderModel>(
-      create: (context)=>MyOrderModel(),
+      create: (context) => MyOrderModel(),
       child: Scaffold(
-
           appBar: AppBar(
             automaticallyImplyLeading: false,
             leading: IconButton(
@@ -162,94 +141,86 @@ class _OrderScreennState extends State<OrderScreen>
               "Order Item",
             ),
           ),
-          body:  Consumer<MyOrderModel>(
-              builder: (contex,myModel2,child){
-            child: return Padding(
+          body: Consumer<MyOrderModel>(builder: (contex, myModel2, child) {
+            return Padding(
               padding: const EdgeInsets.all(8.0),
               child: FutureBuilder(
                 future: myModel2.getCartList(),
                 builder: (context, i) {
                   if (i.hasData) {
                     orderList = i.data;
-                    if(oneLoadSum==true) {
-                      Provider.of<MyOrderModel>(context,listen: true).sumValueAdd(_menuPriceTotall);
+                    if (oneLoadSum == true) {
+                      Provider.of<MyOrderModel>(context, listen: true)
+                          .sumValueAdd(_menuPriceTotall);
                       oneLoadSum = false;
                     }
 
                     return ListView.builder(
-                        itemCount: orderList == null ? 0 :orderList.length,
-                        itemBuilder: (BuildContext context, int index) {
-
-                          Order oa = orderList[index];
+                      itemCount: orderList == null ? 0 : orderList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        Order oa = orderList[index];
 
 //                print(foods);
 //                print(foods.length);
-                          return OrderUserItem(
-                            menuId: oa.menuItemId,
-                            img: oa.menuImageSource,
-                            isFav: false,
-                            name: oa.menuName,
-                            rating: 5.0,
-                            raters: 23,
-                            price: oa.menuPrice,
-
-                            deleteOrder: (){
-                              dbOrderManager.deleteOrder(oa.id);
-                              setState(() {
-                                orderList.removeAt(index);
-                              });
-                              Provider.of<MyOrderModel>(context,listen: false).sumValueMinus(int.parse(oa.menuPrice));
-
-                            },
-                            update: (){
-                              int f = int.parse(oa.menuQuantity);
-                              f++;
-                              String m = f.toString();
-                              setState(() {
+                        return OrderUserItem(
+                          menuId: oa.menuItemId,
+                          img: oa.menuImageSource,
+                          isFav: false,
+                          name: oa.menuName,
+                          rating: 5.0,
+                          raters: 23,
+                          price: oa.menuPrice,
+                          deleteOrder: () {
+                            dbOrderManager.deleteOrder(oa.id);
+                            setState(() {
+                              orderList.removeAt(index);
+                            });
+                            Provider.of<MyOrderModel>(context, listen: false)
+                                .sumValueMinus(int.parse(oa.menuPrice));
+                          },
+                          update: () {
+                            int f = int.parse(oa.menuQuantity);
+                            f++;
+                            String m = f.toString();
+                            setState(() {
 //                        int m = int.parse(ca.id);
-                                Provider.of<MyOrderModel>(context, listen: false)
-                                    .changeValue(oa.id,m);
-                                Provider.of<MyOrderModel>(context,listen: false).sumValuePlus(int.parse(oa.menuPrice));
-
-                              });
-                            },
-                            decrease:(){
-                              int f = int.parse(oa.menuQuantity);
-                              f--;
-                              String m = f.toString();
-                              setState(() {
+                              Provider.of<MyOrderModel>(context, listen: false)
+                                  .changeValue(oa.id, m);
+                              Provider.of<MyOrderModel>(context, listen: false)
+                                  .sumValuePlus(int.parse(oa.menuPrice));
+                            });
+                          },
+                          decrease: () {
+                            int f = int.parse(oa.menuQuantity);
+                            f--;
+                            String m = f.toString();
+                            setState(() {
 //                        int m = int.parse(ca.id);
-                                Provider.of<MyOrderModel>(context, listen: false)
-                                    .changeValue(oa.id,m);
-                                Provider.of<MyOrderModel>(context,listen: false).sumValueMinus(int.parse(oa.menuPrice));
-                              });
-                            },
-                            quantity: oa.menuQuantity.toString(),
-
-                          );
-                        },
-                      );
-
+                              Provider.of<MyOrderModel>(context, listen: false)
+                                  .changeValue(oa.id, m);
+                              Provider.of<MyOrderModel>(context, listen: false)
+                                  .sumValueMinus(int.parse(oa.menuPrice));
+                            });
+                          },
+                          quantity: oa.menuQuantity.toString(),
+                        );
+                      },
+                    );
                   }
                   return Center(child: CircularProgressIndicator());
                 },
               ),
             );
-           }
-          ),
-
+          }),
           bottomNavigationBar: Container(
             height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 SizedBox(height: 10.0),
-
-
                 Center(
                   child: Row(
                     children: <Widget>[
-
                       Text(
                         "Total Price:",
                         style: TextStyle(
@@ -257,27 +228,21 @@ class _OrderScreennState extends State<OrderScreen>
                           fontWeight: FontWeight.w300,
                         ),
                       ),
-
-
                       SizedBox(width: 10.0),
-
                       Container(
                         child: Consumer<MyOrderModel>(
-                            builder: (contex,myModel,child){
-                              taka=  myModel._sumToatal.toString();
-                              return Text(
-                                  "${myModel._sumToatal }",
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w900,
-                                    color: Theme.of(context).accentColor,
-                                  ),
-                                );
-
-                            }
-                        ),
+                            builder: (contex, myModel, child) {
+                          taka = myModel._sumToatal.toString();
+                          return Text(
+                            "${myModel._sumToatal}",
+                            style: TextStyle(
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.w900,
+                              color: Theme.of(context).accentColor,
+                            ),
+                          );
+                        }),
                       ),
-
                     ],
                   ),
                 ),
@@ -291,8 +256,8 @@ class _OrderScreennState extends State<OrderScreen>
                   ),
                   color: Theme.of(context).accentColor,
                   onPressed: () {
-                   // orderItem();
-                   Navigator.of(context).push(
+                    // orderItem();
+                    Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (BuildContext context) {
                           return OrderPaymentScreen(int.parse(taka));
@@ -304,63 +269,52 @@ class _OrderScreennState extends State<OrderScreen>
                 SizedBox(height: 10.0),
               ],
             ),
-          )
-
-      ),
+          )),
     );
     //);
   }
-
-
 
   @override
   bool get wantKeepAlive => true;
 }
 
 class MyOrderModel with ChangeNotifier {
+  int Sum = 0;
 
-  int Sum=0;
+  int get _sumToatal => Sum;
 
-  int get _sumToatal=>Sum;
-
-  sumValueAdd(int sumTemp){
+  sumValueAdd(int sumTemp) {
     // Sum=Sum+sumTemp;
-    Sum=sumTemp;
+    Sum = sumTemp;
     print("Sum22 ++ ${Sum}");
     notifyListeners();
   }
 
-
-  sumValueMinus(int sumTemp){
-    Sum=Sum-sumTemp;
-
-    print("Sum33 --- ${Sum}");
-    notifyListeners();
-  }
-
-  sumValuePlus(int sumTemp){
-    Sum=Sum+sumTemp;
+  sumValueMinus(int sumTemp) {
+    Sum = Sum - sumTemp;
 
     print("Sum33 --- ${Sum}");
     notifyListeners();
   }
 
+  sumValuePlus(int sumTemp) {
+    Sum = Sum + sumTemp;
 
+    print("Sum33 --- ${Sum}");
+    notifyListeners();
+  }
 
   ////
 
   OrderProvider dbManager = OrderProvider();
   List<Order> studentList;
 
-  Future<List<Order>> getCartList()async {
+  Future<List<Order>> getCartList() async {
     notifyListeners();
     return await dbManager.getOrder();
-
   }
 
-
-
-  void changeValue(int id,String quantity)async{
+  void changeValue(int id, String quantity) async {
     print('id :  $id');
     print('quantity :  $quantity');
     /* print("${id}...${name}");
@@ -372,15 +326,13 @@ class MyOrderModel with ChangeNotifier {
   }
 
 /* totalMenuWithQuantity()async{
-   Sum= await dbManager.getMenuPrice();*//*.then((onValue){
+   Sum= await dbManager.getMenuPrice();*/ /*.then((onValue){
      print("onValue..${onValue}");
      Sum=onValue;
-   });*//*
+   });*/ /*
    notifyListeners();
    return Sum;
 
  }*/
-
-
 
 }

@@ -10,7 +10,7 @@ class Order {
   final String menuImageSource;
   final String menuQuantity;
 
-  Order({
+  const Order({
     this.id,
     @required this.userId,
     @required this.menuItemId,
