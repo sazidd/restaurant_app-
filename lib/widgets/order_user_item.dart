@@ -4,7 +4,6 @@ import 'package:flutterapptestpush/screens/details_item.dart';
 import 'package:flutterapptestpush/util/const.dart';
 import 'package:flutterapptestpush/widgets/smooth_star_rating.dart';
 
-
 class OrderUserItem extends StatelessWidget {
   final String menuId;
   final String name;
@@ -18,9 +17,7 @@ class OrderUserItem extends StatelessWidget {
   final Function update;
   final Function decrease;
 
-
-  OrderUserItem({
-    Key key,
+  const OrderUserItem({
     @required this.menuId,
     @required this.name,
     @required this.img,
@@ -32,19 +29,18 @@ class OrderUserItem extends StatelessWidget {
     @required this.deleteOrder,
     @required this.update,
     @required this.decrease,
+  });
 
-  })
-      :super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(0, 4, 0, 4),
       child: InkWell(
-        onTap: (){
+        onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (BuildContext context){
-                return DetailsItem(menuId,img);
+              builder: (BuildContext context) {
+                return DetailsItem(menuId, img);
               },
             ),
           );
@@ -54,8 +50,8 @@ class OrderUserItem extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(left: 0.0, right: 10.0),
               child: Container(
-                height: MediaQuery.of(context).size.width/3.3,
-                width: MediaQuery.of(context).size.width/3,
+                height: MediaQuery.of(context).size.width / 3.3,
+                width: MediaQuery.of(context).size.width / 3,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.network(
@@ -101,10 +97,8 @@ class OrderUserItem extends StatelessWidget {
                     )
                   ],
                 ),
-
                 Row(
                   children: <Widget>[
-
                     Row(
                       children: <Widget>[
                         Text(
@@ -115,7 +109,6 @@ class OrderUserItem extends StatelessWidget {
                           ),
                         ),
                         SizedBox(width: 2.0),
-
                         Text(
                           "${price}",
                           style: TextStyle(
@@ -124,16 +117,13 @@ class OrderUserItem extends StatelessWidget {
                             color: Theme.of(context).accentColor,
                           ),
                         ),
-
                       ],
                     ),
-
                     SizedBox(width: 5.0),
                     IconButton(
                       icon: Icon(Icons.remove),
                       onPressed: decrease,
                     ),
-
                     Text(
                       "Quantity: ${quantity}",
                       style: TextStyle(
@@ -141,20 +131,13 @@ class OrderUserItem extends StatelessWidget {
                         fontWeight: FontWeight.w300,
                       ),
                     ),
-
-
                     IconButton(
                       icon: Icon(Icons.add),
                       onPressed: update,
                     ),
-
                   ],
                 ),
-
-
-
               ],
-
             ),
           ],
         ),

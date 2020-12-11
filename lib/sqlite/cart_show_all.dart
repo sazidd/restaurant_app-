@@ -12,7 +12,7 @@ class ShowCartAll extends StatefulWidget {
 }
 
 class _ShowCartAllState extends State<ShowCartAll> {
-  OrderProvider dbManager = OrderProvider();
+  OrderDb dbManager = OrderDb();
   Order student;
   List<Order> studentList;
 
@@ -25,114 +25,112 @@ class _ShowCartAllState extends State<ShowCartAll> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<MyOrderModel2>(
-      create: (context)=>MyOrderModel2(),
+      create: (context) => MyOrderModel2(),
       child: Scaffold(
-      appBar: AppBar(
-        title: Text('Hello world'),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: (){
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AddCartNew(false)));
-            },
-          )
-        ],
-      ),
-      body: Consumer<MyOrderModel2>(
-    builder: (contex,myModel2,child){
-     return FutureBuilder(
-        future: myModel2.getCartList(),
-        builder: (context, i) {
-          if (i.hasData) {
-            studentList = i.data;
-            return ListView.builder(
-              itemCount: studentList.length,
-              itemBuilder: (BuildContext context, index) {
-                Order st = studentList[index];
-                return Card(
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        height: 100.0,
-                        width: 100.0,
-                        child: Column(
-                          children: <Widget>[
-                            Text('name: ${st.menuQuantity}'),
-                            RaisedButton(
-                              child: Text('Add new'),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => AddCartNew(false)));
-                              },
+        appBar: AppBar(
+          title: Text('Hello world'),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AddCartNew(false)));
+              },
+            )
+          ],
+        ),
+        body: Consumer<MyOrderModel2>(builder: (contex, myModel2, child) {
+          return FutureBuilder(
+            future: myModel2.getCartList(),
+            builder: (context, i) {
+              if (i.hasData) {
+                studentList = i.data;
+                return ListView.builder(
+                  itemCount: studentList.length,
+                  itemBuilder: (BuildContext context, index) {
+                    Order st = studentList[index];
+                    return Card(
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            height: 100.0,
+                            width: 100.0,
+                            child: Column(
+                              children: <Widget>[
+                                Text('name: ${st.menuQuantity}'),
+                                RaisedButton(
+                                  child: Text('Add new'),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                AddCartNew(false)));
+                                  },
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      RaisedButton(
-                        child: Text('Delete'),
-                        onPressed: () {
-                        /*  dbManager.deleteCart(st.id);
+                          ),
+                          RaisedButton(
+                            child: Text('Delete'),
+                            onPressed: () {
+                              /*  dbManager.deleteCart(st.id);
                           setState(() {
                             studentList.removeAt(index);
                           });*/
-                          Provider.of<MyOrderModel2>(context,listen: false).changeValue(st.menuItemId.toString(),"1");
-                        },
-                      ),
-                      RaisedButton(
-                        child: Text('Edit'),
-                        onPressed: () {
-                          student = st;
-                          print(student);
-                        /*  Navigator.push(
+                              Provider.of<MyOrderModel2>(context, listen: false)
+                                  .changeValue(st.menuItemId.toString(), "1");
+                            },
+                          ),
+                          RaisedButton(
+                            child: Text('Edit'),
+                            onPressed: () {
+                              student = st;
+                              print(student);
+                              /*  Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => AddCartNew(
                                         true,
                                         student: st,
                                       )));*/
-                        },
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
-              },
-            );
-          }
-          return CircularProgressIndicator();
-        },
-      );
-    }
+              }
+              return CircularProgressIndicator();
+            },
+          );
+        }),
       ),
-    ),);
+    );
   }
 }
 
 class MyOrderModel2 with ChangeNotifier {
-  OrderProvider dbManager = OrderProvider();
+  OrderDb dbManager = OrderDb();
   List<Order> studentList;
 
-  Future<List<Order>> getCartList()async {
+  Future<List<Order>> getCartList() async {
     notifyListeners();
     return await dbManager.getOrder();
-      /*.then((onValue){
+    /*.then((onValue){
         print("onValue...${onValue}");
        studentList=onValue;
        return studentList;
      });*/
-
-
   }
-  changeValue(String id,String name)async{
-   /* print("${id}...${name}");
+
+  changeValue(String id, String name) async {
+    /* print("${id}...${name}");
     dbManager.updateCart(
         new Cart(id: int.parse(id),menuItemId: "1",menuName: name));*/
 
-     await dbManager.getupdateMenuQuantity(id,name);
+    await dbManager.getupdateMenuQuantity(menuId: id, menuQuantity: name);
 
     notifyListeners();
   }

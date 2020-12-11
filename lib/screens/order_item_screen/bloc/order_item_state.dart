@@ -15,15 +15,17 @@ class OrderItemSuccess extends OrderItemState {
   final List<Order> orders;
   final int quantity;
   final int price;
+  final int total;
 
   const OrderItemSuccess({
     this.orders = const <Order>[],
     this.quantity = 1,
     this.price = 0,
+    this.total = 0,
   });
 
   @override
-  List<Object> get props => [orders, quantity, price];
+  List<Object> get props => [orders, quantity, price, total];
 }
 
 class OrderItemFailure extends OrderItemState {

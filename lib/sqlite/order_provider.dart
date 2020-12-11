@@ -1,20 +1,20 @@
-import 'package:flutterapptestpush/sqlite/cart.dart';
-import 'package:flutterapptestpush/sqlite/order.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
-class OrderProvider {
+import 'order.dart';
+
+class OrderDb {
   Database _database;
   Future openDb() async {
     if (_database == null) {
-      _database = await openDatabase(join(await getDatabasesPath(), "orderd.db"),
+      _database = await openDatabase(
+          join(await getDatabasesPath(), "orderd.db"),
           version: 2, onCreate: (Database db, int version) async {
-            await db.execute(
-                "CREATE TABLE orderlist(id INTEGER PRIMARY KEY autoincrement,userId TEXT,menuItemId TEXT,menuName TEXT,menuPrice TEXT,menuDescription TEXT,menuImageSource TEXT,menuQuantity TEXT)");
-          });
+        await db.execute(
+            "CREATE TABLE orderlist(id INTEGER PRIMARY KEY autoincrement,userId TEXT,menuItemId TEXT,menuName TEXT,menuPrice TEXT,menuDescription TEXT,menuImageSource TEXT,menuQuantity TEXT)");
+      });
     }
   }
-
 
   Future<List<Order>> getOrder() async {
     await openDb();
@@ -33,8 +33,9 @@ class OrderProvider {
     });
   }
 
-  Future<Order> getOrderSpecificRow(int id) async {
-    var results = await _database.rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
+  Future<Order> getOrderSpecificRow({int id}) async {
+    var results = await _database
+        .rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
 
     if (results.length > 0) {
       return new Order.fromMap(results.first);
@@ -43,80 +44,79 @@ class OrderProvider {
     return null;
   }
 
-  Future insertOrder(Order order2) async {
+  Future insertOrder(Order order1, {Order order2}) async {
     await openDb();
-    return _database.insert('orderlist', order2.toMap());
+    return _database.insert('orderlist', order1.toMap());
   }
 
-  Future<int> updateOrder(Order order2) async {
+  Future<int> updateOrder({Order order}) async {
     await openDb();
-    return _database.update('orderlist', order2.toMap(),
-        where: "id = ?", whereArgs: [order2.id]);
+    return _database.update('orderlist', order.toMap(),
+        where: "id = ?", whereArgs: [order.id]);
   }
-  Future<void> updateMenuQuantity(int menuId,int menuQuantity) async {
+
+  Future<void> updateMenuQuantity(int menuId, int menuQuantity) async {
     return await _database.rawUpdate(
-        'UPDATE orderlist SET menuQuantity = ${menuQuantity} WHERE menuItemId = ${menuId}'
-    );
+        'UPDATE orderlist SET menuQuantity = $menuQuantity WHERE menuItemId = $menuId');
   }
 
-  Future<void> deleteOrder(int id) async {
+  Future<void> deleteOrder({int id}) async {
     await openDb();
     _database.delete('orderlist', where: "id = ?", whereArgs: [id]);
   }
 
   Future<int> getCount() async {
     await openDb();
-    var x =  await _database.rawQuery('SELECT COUNT (*) from orderlist');
+    var x = await _database.rawQuery('SELECT COUNT (*) from orderlist');
     int count = Sqflite.firstIntValue(x);
-    print("count ....${count}");
+    print("count ....$count");
     return count;
   }
 
   Future<List> getmenuItemId() async {
     await openDb();
-    var result = await _database.rawQuery('SELECT menuItemId,menuQuantity FROM orderlist');
+    var result = await _database
+        .rawQuery('SELECT menuItemId,menuQuantity FROM orderlist');
 
     return result.toList();
   }
 
   Future<int> getMenuPrice() async {
     await openDb();
-    var x =  await _database.rawQuery('SELECT SUM (menuPrice * menuQuantity) from orderlist');
+    var x = await _database
+        .rawQuery('SELECT SUM (menuPrice * menuQuantity) from orderlist');
     int menuPrice = Sqflite.firstIntValue(x);
-    print("menuPrice ....${menuPrice}");
+    print("menuPrice ....$menuPrice");
     return menuPrice;
   }
 
-
-  Future<int> getOrderMenuItemCheck(String id) async {
+  Future<int> getOrderMenuItemCheck({String id}) async {
     await openDb();
-    var x =  await _database.rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
+    var x = await _database
+        .rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
     int count = Sqflite.firstIntValue(x);
-    print("count ....${count}");
+    print("count ....$count");
     return count;
-
-
   }
 
-  Future<Order> getOrderMenuItemCheckQuantity(String id) async {
+  Future<Order> getOrderMenuItemCheckQuantity({String id}) async {
     await openDb();
-    var response =  await _database.rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
+    var response = await _database
+        .rawQuery('SELECT * FROM orderlist WHERE menuItemId = $id');
     return response.isNotEmpty ? Order.fromMap(response.first) : null;
   }
 
-  Future<int> getupdateMenuQuantity(String menuId,String menuQuantity) async {
+  Future<int> getupdateMenuQuantity(
+      {String menuId, String menuQuantity}) async {
     return await _database.rawUpdate(
-        'UPDATE orderlist SET menuQuantity = ${menuQuantity} WHERE menuItemId = ${menuId}'
-    );
+        'UPDATE orderlist SET menuQuantity = $menuQuantity WHERE menuItemId = $menuId');
   }
 
-  Future<void> updateTitle(int id,String quantity) async {
+  Future<void> updateTitle({int id, String quantity}) async {
     print('id :  $id');
     print('kkkk :  $quantity');
 
     return await _database.rawUpdate(
-        'UPDATE orderlist SET menuQuantity = ${quantity} WHERE id = ${id}'
-    );
+        'UPDATE orderlist SET menuQuantity = $quantity WHERE id = $id');
   }
-
 }

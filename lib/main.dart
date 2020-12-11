@@ -3,6 +3,7 @@ import 'package:flutterapptestpush/menu/bloc/menu_bloc.dart';
 import 'package:flutterapptestpush/menu/repository.dart';
 import 'package:flutterapptestpush/screens/home.dart';
 import 'package:flutterapptestpush/screens/order_item_screen/bloc/order_item_bloc.dart';
+import 'package:flutterapptestpush/sqlite/order_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutterapptestpush/providers/app_provider.dart';
 import 'package:flutterapptestpush/screens/splash.dart';
@@ -17,7 +18,9 @@ void main() {
         ChangeNotifierProvider(
           create: (_) => MenuBloc(repository: Repository()),
         ),
-        ChangeNotifierProvider(create: (_) => OrderItemBloc()),
+        ChangeNotifierProvider(
+          create: (_) => OrderItemBloc(orderDb: OrderDb()),
+        ),
       ],
       child: MyApp(),
     ),

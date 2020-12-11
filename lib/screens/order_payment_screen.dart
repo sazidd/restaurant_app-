@@ -39,7 +39,7 @@ class _OrderPaymentScreenState extends State<OrderPaymentScreen> {
   final TextEditingController _commentsControl = new TextEditingController();
   ////
 
-  OrderProvider dbOrderManager = OrderProvider();
+  OrderDb dbOrderManager = OrderDb();
   Order order;
   List<Order> orderList;
   int sum = 0;

@@ -35,7 +35,7 @@ class DetailsItem extends StatefulWidget {
 class _DetailsItem extends State<DetailsItem> {
   CartProvider dbsqliteCart = CartProvider();
   WishlistProvider dbsqliteWish = WishlistProvider();
-  OrderProvider dbsqliteOrder = OrderProvider();
+  OrderDb dbsqliteOrder = OrderDb();
 
   bool isFav = false;
   ItemDetails itemDetails;
@@ -468,7 +468,7 @@ class _DetailsItem extends State<DetailsItem> {
       //when user id not is empty
 
       dbsqliteOrder
-          .getOrderMenuItemCheck(itemDetails.id.toString())
+          .getOrderMenuItemCheck(id: itemDetails.id.toString())
           .then((onValue) {
         print("onValue .$onValue");
         if (onValue == null) {
@@ -507,7 +507,7 @@ class _DetailsItem extends State<DetailsItem> {
         } else {
           print("menuTotalyy");
           dbsqliteOrder
-              .getOrderMenuItemCheckQuantity(itemDetails.id.toString())
+              .getOrderMenuItemCheckQuantity(id: itemDetails.id.toString())
               .then((onValue) {
             Order order = onValue;
             int menuQantity;
@@ -521,7 +521,8 @@ class _DetailsItem extends State<DetailsItem> {
 
             dbsqliteOrder
                 .getupdateMenuQuantity(
-                    itemDetails.id.toString(), menuQantity.toString())
+                    menuId: itemDetails.id.toString(),
+                    menuQuantity: menuQantity.toString())
                 .then((onValue) {
               print("onValue. .${onValue}");
 

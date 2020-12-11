@@ -14,9 +14,9 @@ class OrderUserScreen extends StatefulWidget {
   _OrderUserScreenState createState() => _OrderUserScreenState();
 }
 
-class _OrderUserScreenState extends State<OrderUserScreen> with AutomaticKeepAliveClientMixin<OrderUserScreen >{
-
-  OrderProvider dbOrderManager = OrderProvider();
+class _OrderUserScreenState extends State<OrderUserScreen>
+    with AutomaticKeepAliveClientMixin<OrderUserScreen> {
+  OrderDb dbOrderManager = OrderDb();
   Order order;
   List<Order> orderList;
 
@@ -24,48 +24,43 @@ class _OrderUserScreenState extends State<OrderUserScreen> with AutomaticKeepAli
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-
       body: Padding(
-        padding: EdgeInsets.fromLTRB(10.0,0,10.0,0),
+        padding: EdgeInsets.fromLTRB(10.0, 0, 10.0, 0),
         child: FutureBuilder(
           future: dbOrderManager.getOrder(),
           builder: (context, i) {
             if (i.hasData) {
               orderList = i.data;
-              return
-
-                ListView.builder(
-                  itemCount: orderList == null ? 0 :orderList.length,
-                  itemBuilder: (BuildContext context, int index) {
+              return ListView.builder(
+                itemCount: orderList == null ? 0 : orderList.length,
+                itemBuilder: (BuildContext context, int index) {
 //                Food food = Food.fromJson(foods[index]);
-                    Order oa = orderList[index];
+                  Order oa = orderList[index];
 //                print(foods);
 //                print(foods.length);
-                   return OrderUserItem(
-                      menuId: oa.menuItemId,
-                      img: oa.menuImageSource,
-                      isFav: false,
-                      name: oa.menuName,
-                      rating: 5.0,
-                      raters: 23,
-                      price: oa.menuPrice,
-                      quantity: oa.menuQuantity,
-                      deleteOrder: (){
-                        dbOrderManager.deleteOrder(oa.id);
-                        setState(() {
-                          orderList.removeAt(index);
-                        });
-                      },
-                    );
-                  },
-                );
-
+                  return OrderUserItem(
+                    menuId: oa.menuItemId,
+                    img: oa.menuImageSource,
+                    isFav: false,
+                    name: oa.menuName,
+                    rating: 5.0,
+                    raters: 23,
+                    price: oa.menuPrice,
+                    quantity: oa.menuQuantity,
+                    deleteOrder: () {
+                      dbOrderManager.deleteOrder(id: oa.id);
+                      setState(() {
+                        orderList.removeAt(index);
+                      });
+                    },
+                  );
+                },
+              );
             }
             return CircularProgressIndicator();
           },
         ),
       ),
-
     );
   }
 
